@@ -22,7 +22,7 @@ file(GLOB SOURCES
 )
 
 add_library(${PROJECT_NAME}
-  SHARED
+  STATIC
     ${SOURCES}
 )
 

@@ -14,7 +14,7 @@ int SyncProcess::Execute(const std::string& cmd, std::string& result)
   FILE* p = popen(cmd.c_str(), "r");
   if (!p)
   {
-    LOG_ERROR("Failed to execute: %s", cmd);
+    LOG_ERROR("Failed to execute: %s", cmd.c_str());
     return -errno;
   }
 
@@ -39,11 +39,11 @@ int SyncProcess::Execute(const std::string& cmd, std::string& result)
   if (ret < 0)
   {
     ret = -errno;
-    LOG_WARNING("Process '%s' exited with code %d ", cmd, -ret);
+    LOG_WARNING("Process '%s' exited with code %d ", cmd.c_str(), -ret);
   }
   else if (ret > 0)
   {
-    LOG_DEBUG("Process '%s' exited unsuccessfully with code %d", cmd, ret);
+    LOG_DEBUG("Process '%s' exited unsuccessfully with code %d", cmd.c_str(), ret);
   }
 
   return ret;

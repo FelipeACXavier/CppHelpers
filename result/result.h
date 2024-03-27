@@ -309,7 +309,7 @@ protected:
   {                                        \
     auto ret = m;                          \
     if (!ret.IsSuccess())                  \
-      LOG_ERROR("%s", ret.ErrorMessage()); \
+      LOG_ERROR(ret.ErrorMessage()); \
   } while (0)
 
 #define LOG_WARN_ON_FAILURE(m)               \
@@ -317,7 +317,7 @@ protected:
   {                                          \
     auto ret = m;                            \
     if (!ret.IsSuccess())                    \
-      LOG_WARNING("%s", ret.ErrorMessage()); \
+      LOG_WARNING(ret.ErrorMessage()); \
   } while (0)
 
 #define LOG_AND_RETURN_VOID_ON_FAILURE(m)            \
