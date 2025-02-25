@@ -4,7 +4,7 @@
 #include <functional>
 #include <optional>
 #include <string>
-
+#include <stdexcept>
 
 template <class T>
 class Result
