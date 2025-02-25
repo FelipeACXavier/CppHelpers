@@ -1,6 +1,7 @@
 #pragma once
 
-#include <functional>
+#include <stdint.h>
+
 #include <string>
 
 #include "string_helpers.h"
@@ -26,7 +27,7 @@ std::string TimeToString(struct timespec ts);
 void Print(struct timespec ts, LogLevel level, const std::string& filename, const uint32_t& line, const std::string& message);
 void Log(LogLevel level, const std::string& filename, const uint32_t& line, const std::string& message);
 
-}
+}  // namespace logging
 
 #define LOG_ERROR(s, ...) \
   logging::Log(logging::LogLevel::Error, __FILE__, __LINE__, Format(s, ##__VA_ARGS__))

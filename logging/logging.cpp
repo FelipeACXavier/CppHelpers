@@ -1,6 +1,5 @@
 #include "logging.h"
 
-#include <chrono>
 #include <mutex>
 #include <sstream>
 
@@ -71,12 +70,13 @@ void Log(LogLevel level, const std::string& filename, const uint32_t& line, cons
   clock_gettime(CLOCK_REALTIME, &ts);
 
   // Get filename minus the extension
-  const uint32_t idx = filename.find_last_of("/\\") + 1;
-  const uint32_t size = filename.size() - filename.find_last_of(".") + 1;
+
+  const uint32_t idx = filename.find_last_of('/') + 1;
+  const uint32_t size = filename.find_last_of('.') - idx;
   const std::string shortFilename = filename.substr(idx, size);
 
   std::lock_guard<std::mutex> lock(mPrintfMutex);
   Print(ts, level, shortFilename, line, message);
 }
 
-}
+}  // namespace logging
