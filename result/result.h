@@ -3,8 +3,8 @@
 #include <exception>
 #include <functional>
 #include <optional>
-#include <string>
 #include <stdexcept>
+#include <string>
 
 template <class T>
 class Result
@@ -101,6 +101,12 @@ public:
   static Result<T> Failed(const std::string& msg)
   {
     return Result<T>(std::runtime_error(msg));
+  }
+
+  template <class U>
+  static Result Failed(const Result<U>& result)
+  {
+    return Result<T>(std::runtime_error(result.ErrorMessage()));
   }
 
   explicit operator bool() const noexcept
@@ -202,6 +208,12 @@ public:
     return VoidResult(std::runtime_error(msg));
   }
 
+  template <class U>
+  static VoidResult Failed(const Result<U>& result)
+  {
+    return VoidResult(std::runtime_error(result.ErrorMessage()));
+  }
+
   static VoidResult FailIf(std::function<bool()> f, const std::string& msg)
   {
     return f() ? VoidResult::Failed(msg) : VoidResult();
@@ -297,26 +309,26 @@ protected:
     return Result<t>::Failed(m); \
   } while (0)
 
-#define LOG_AND_RETURN_VOID(m)     \
-  do                               \
-  {                                \
-    LOG_ERROR(m);                  \
-    return VoidResult::Failed(m);  \
+#define LOG_AND_RETURN_VOID(m)    \
+  do                              \
+  {                               \
+    LOG_ERROR(m);                 \
+    return VoidResult::Failed(m); \
   } while (0)
 
-#define LOG_ERROR_ON_FAILURE(m)            \
-  do                                       \
-  {                                        \
-    auto ret = m;                          \
-    if (!ret.IsSuccess())                  \
+#define LOG_ERROR_ON_FAILURE(m)      \
+  do                                 \
+  {                                  \
+    auto ret = m;                    \
+    if (!ret.IsSuccess())            \
       LOG_ERROR(ret.ErrorMessage()); \
   } while (0)
 
-#define LOG_WARN_ON_FAILURE(m)               \
-  do                                         \
-  {                                          \
-    auto ret = m;                            \
-    if (!ret.IsSuccess())                    \
+#define LOG_WARN_ON_FAILURE(m)         \
+  do                                   \
+  {                                    \
+    auto ret = m;                      \
+    if (!ret.IsSuccess())              \
       LOG_WARNING(ret.ErrorMessage()); \
   } while (0)
 
