@@ -10,6 +10,7 @@ namespace logging
 
 bool gSilentLog = false;
 LogLevel gMinLogLevel = LogLevel::Debugging;
+std::function<void(struct timespec ts, logging::LogLevel level, const std::string& filename, const uint32_t& line, const std::string& message)> gLogToStream = nullptr;
 
 std::string LevelToString(LogLevel logLevel)
 {
@@ -42,10 +43,13 @@ std::string LevelToString(LogLevel logLevel)
 std::string TimeToString(struct timespec ts)
 {
   const struct tm* time = localtime(&ts.tv_sec);
-  return Format("%02d/%02d/%04d %2d:%02d:%02d.%06ld", time->tm_mday, time->tm_mon + 1, time->tm_year + 1900, time->tm_hour, time->tm_min, time->tm_sec, ts.tv_nsec);
+  return Format("%02d/%02d/%04d %2d:%02d:%02d.%06ld", time->tm_mday,
+                time->tm_mon + 1, time->tm_year + 1900, time->tm_hour,
+                time->tm_min, time->tm_sec, ts.tv_nsec);
 }
 
-void Print(struct timespec ts, LogLevel level, const std::string& filename, const uint32_t& line, const std::string& message)
+void Print(struct timespec ts, LogLevel level, const std::string& filename,
+           const uint32_t& line, const std::string& message)
 {
   const std::string msg = Format("%s [%s] %s:%u: %s\n", TimeToString(ts).c_str(), LevelToString(level).c_str(), filename.c_str(), line, message.c_str());
   if (level == LogLevel::Error)
@@ -60,7 +64,8 @@ void Print(struct timespec ts, LogLevel level, const std::string& filename, cons
   }
 }
 
-void Log(LogLevel level, const std::string& filename, const uint32_t& line, const std::string& message)
+void Log(LogLevel level, const std::string& filename, const uint32_t& line,
+         const std::string& message)
 {
   static std::mutex mPrintfMutex;
   if (level > gMinLogLevel || gSilentLog)
@@ -74,6 +79,9 @@ void Log(LogLevel level, const std::string& filename, const uint32_t& line, cons
   const uint32_t idx = filename.find_last_of('/') + 1;
   const uint32_t size = filename.find_last_of('.') - idx;
   const std::string shortFilename = filename.substr(idx, size);
+
+  if (gLogToStream)
+    gLogToStream(ts, level, shortFilename, line, message);
 
   std::lock_guard<std::mutex> lock(mPrintfMutex);
   Print(ts, level, shortFilename, line, message);
