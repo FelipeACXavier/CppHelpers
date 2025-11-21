@@ -10,7 +10,7 @@ namespace logging
 
 bool gSilentLog = false;
 LogLevel gMinLogLevel = LogLevel::Debugging;
-std::function<void(struct timespec ts, logging::LogLevel level, const std::string& filename, const uint32_t& line, const std::string& message)> gLogToStream = nullptr;
+std::function<void(std::chrono::system_clock::time_point ts, logging::LogLevel level, const std::string& filename, const uint32_t& line, const std::string& message)> gLogToStream = nullptr;
 
 std::string LevelToString(LogLevel logLevel)
 {
@@ -40,18 +40,37 @@ std::string LevelToString(LogLevel logLevel)
   return strStream.str();
 }
 
-std::string TimeToString(struct timespec ts)
+std::tm ToLocalTm(std::chrono::system_clock::time_point now)
 {
-  const struct tm* time = localtime(&ts.tv_sec);
-  return Format("%02d/%02d/%04d %2d:%02d:%02d.%06ld", time->tm_mday,
-                time->tm_mon + 1, time->tm_year + 1900, time->tm_hour,
-                time->tm_min, time->tm_sec, ts.tv_nsec);
+  auto secs = std::chrono::time_point_cast<std::chrono::seconds>(now);
+  auto micros = std::chrono::duration_cast<std::chrono::microseconds>(now - secs).count();
+  auto t = std::chrono::system_clock::to_time_t(secs);
+
+  std::tm tm{};
+#if defined(_WIN32)
+  localtime_s(&tm, &t);
+#else
+  localtime_r(&t, &tm);
+#endif
+  return tm;
 }
 
-void Print(struct timespec ts, LogLevel level, const std::string& filename,
+std::string TimeToString(std::chrono::system_clock::time_point now)
+{
+  auto secs = std::chrono::time_point_cast<std::chrono::seconds>(now);
+  auto micros = std::chrono::duration_cast<std::chrono::microseconds>(now - secs).count();
+  std::tm tm = ToLocalTm(now);
+
+  return Format(
+      "%02d/%02d/%04d %02d:%02d:%02d.%06lld",
+      tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900,
+      tm.tm_hour, tm.tm_min, tm.tm_sec, static_cast<long long>(micros));
+}
+
+void Print(std::chrono::system_clock::time_point now, LogLevel level, const std::string& filename,
            const uint32_t& line, const std::string& message)
 {
-  const std::string msg = Format("%s [%s] %s:%u: %s\n", TimeToString(ts).c_str(), LevelToString(level).c_str(), filename.c_str(), line, message.c_str());
+  const std::string msg = Format("%s [%s] %s:%u: %s\n", TimeToString(now).c_str(), LevelToString(level).c_str(), filename.c_str(), line, message.c_str());
   if (level == LogLevel::Error)
   {
     fprintf(stderr, "%s", msg.data());
@@ -71,20 +90,18 @@ void Log(LogLevel level, const std::string& filename, const uint32_t& line,
   if (level > gMinLogLevel || gSilentLog)
     return;
 
-  struct timespec ts;
-  clock_gettime(CLOCK_REALTIME, &ts);
+  auto now = std::chrono::system_clock::now();
 
   // Get filename minus the extension
-
   const uint32_t idx = filename.find_last_of('/') + 1;
   const uint32_t size = filename.find_last_of('.') - idx;
   const std::string shortFilename = filename.substr(idx, size);
 
   if (gLogToStream)
-    gLogToStream(ts, level, shortFilename, line, message);
+    gLogToStream(now, level, shortFilename, line, message);
 
   std::lock_guard<std::mutex> lock(mPrintfMutex);
-  Print(ts, level, shortFilename, line, message);
+  Print(now, level, shortFilename, line, message);
 }
 
 }  // namespace logging
