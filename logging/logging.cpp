@@ -40,17 +40,13 @@ std::string LevelToString(LogLevel logLevel)
   return strStream.str();
 }
 
-std::tm ToLocalTm(std::chrono::system_clock::time_point now)
+std::tm ToLocalTm(std::time_t now)
 {
-  auto secs = std::chrono::time_point_cast<std::chrono::seconds>(now);
-  auto micros = std::chrono::duration_cast<std::chrono::microseconds>(now - secs).count();
-  auto t = std::chrono::system_clock::to_time_t(secs);
-
   std::tm tm{};
 #if defined(_WIN32)
-  localtime_s(&tm, &t);
+  localtime_s(&tm, &now);
 #else
-  localtime_r(&t, &tm);
+  localtime_r(&now, &tm);
 #endif
   return tm;
 }
@@ -59,10 +55,11 @@ std::string TimeToString(std::chrono::system_clock::time_point now)
 {
   auto secs = std::chrono::time_point_cast<std::chrono::seconds>(now);
   auto micros = std::chrono::duration_cast<std::chrono::microseconds>(now - secs).count();
-  std::tm tm = ToLocalTm(now);
+  auto t = std::chrono::system_clock::to_time_t(secs);
+  std::tm tm = ToLocalTm(t);
 
   return Format(
-      "%02d/%02d/%04d %02d:%02d:%02d.%06lld",
+      "%02d/%02d/%04d %02d:%02d:%02d.%09lld",
       tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900,
       tm.tm_hour, tm.tm_min, tm.tm_sec, static_cast<long long>(micros));
 }

@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.5.1)
 # Define project name
 project(libcpphelpers VERSION 1.0)
 
+add_compile_options(-Wall)
 add_compile_options(-O3)
 
 set(CMAKE_CXX_STANDARD 17)

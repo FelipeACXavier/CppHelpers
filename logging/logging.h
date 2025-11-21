@@ -28,7 +28,7 @@ extern std::function<void(std::chrono::system_clock::time_point now, logging::Lo
     gLogToStream;
 
 std::string LevelToString(LogLevel logLevel);
-std::tm ToLocalTm(std::chrono::system_clock::time_point now);
+std::tm ToLocalTm(std::time_t now);
 std::string TimeToString(std::chrono::system_clock::time_point tp);
 
 void Print(std::chrono::system_clock::time_point now, LogLevel level, const std::string& filename,
