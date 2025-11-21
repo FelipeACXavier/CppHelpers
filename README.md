@@ -74,7 +74,7 @@ Output:
 ```
 
 ## file_system_helpers.h
-Naturally,it contains file system helpers. For now, only linux is supported.
+Naturally,it contains file system helpers. For now, only linux is supported. For windows, the library can be compiled with `-DCPPHELPERS_FILE_SYSTEM=OFF`
 
 ```cpp
 #include "file_system_helpers.h"
