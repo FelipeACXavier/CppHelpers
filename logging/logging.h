@@ -3,8 +3,11 @@
 #include <stdint.h>
 
 #include <chrono>
+#include <format>
 #include <functional>
+#include <iostream>
 #include <string>
+#include <string_view>
 
 #include "string_helpers.h"
 
@@ -36,6 +39,12 @@ void Print(std::chrono::system_clock::time_point now, LogLevel level, const std:
 void Log(LogLevel level, const std::string& filename, const uint32_t& line,
          const std::string& message);
 
+template <typename... Args>
+void logRaw(std::string_view fmt, Args&&... args)
+{
+  std::cout << std::vformat(fmt, std::make_format_args(args...)) << std::endl;
+}
+
 }  // namespace logging
 
 #define LOG_ERROR(s, ...)                                    \
@@ -55,3 +64,5 @@ void Log(LogLevel level, const std::string& filename, const uint32_t& line,
 #define LOG_TRACE(s, ...)                                    \
   logging::Log(logging::LogLevel::Trace, __FILE__, __LINE__, \
                Format(s, ##__VA_ARGS__))
+#define LOG_RAW(s, ...) \
+  logging::logRaw(s, ##__VA_ARGS__)
