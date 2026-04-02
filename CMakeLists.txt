@@ -1,22 +1,33 @@
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.22)
 
 # Define project name
 project(libcpphelpers VERSION 1.0)
 
-add_compile_options(-Wall)
-add_compile_options(-O3)
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-cmake_minimum_required(VERSION 3.5.1)
+# if (MSVC)
+#   add_compile_options(/W4)
+#   if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+#       add_compile_options(/Zi /Od)
+#   elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
+#       add_compile_options(/O2)
+#   endif()
+# else()
+#   add_compile_options(-Wall)
+#   if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+#       add_compile_options(-g -O0)
+#   elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
+#       add_compile_options(-O2)
+#   endif()
+# endif()
 
 include(GNUInstallDirs)
 
 # ------------------------------------------------------------------------------------------------------------
 # Options to enable/disable parts
-option(CPPHELPERS_SAFE_TYPES   "Do not build safe_types helpers"   ON)
-option(CPPHELPERS_FILE_SYSTEM  "Do not build file_system helpers"  ON)
+option(CPPHELPERS_SAFE_TYPES   "Build safe_types helpers"   ON)
+option(CPPHELPERS_FILE_SYSTEM  "Build file_system helpers"  ON)
 
 set(LIBCPPHELPERS_SOURCES "")
 set(LIBCPPHELPERS_INCLUDES "")
