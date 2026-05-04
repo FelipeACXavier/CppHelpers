@@ -25,10 +25,19 @@ enum class LogLevel
 
 extern bool gSilentLog;
 extern logging::LogLevel gMinLogLevel;
+#ifdef LOGGING_USE_SOURCE
+extern std::string gSourceName;
+extern std::function<void(std::chrono::system_clock::time_point now, logging::LogLevel level,
+                          const std::string& source,
+                          const std::string& filename, const uint32_t& line,
+                          const std::string& message)>
+    gLogToStream;
+#else
 extern std::function<void(std::chrono::system_clock::time_point now, logging::LogLevel level,
                           const std::string& filename, const uint32_t& line,
                           const std::string& message)>
     gLogToStream;
+#endif
 
 std::string LevelToString(LogLevel logLevel);
 std::tm ToLocalTm(std::time_t now);

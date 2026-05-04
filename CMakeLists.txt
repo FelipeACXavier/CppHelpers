@@ -28,6 +28,7 @@ include(GNUInstallDirs)
 # Options to enable/disable parts
 option(CPPHELPERS_SAFE_TYPES   "Build safe_types helpers"   ON)
 option(CPPHELPERS_FILE_SYSTEM  "Build file_system helpers"  ON)
+option(CPPHELPERS_USE_SOURCE   "Build logging with support for sources"  OFF)
 
 set(LIBCPPHELPERS_SOURCES "")
 set(LIBCPPHELPERS_INCLUDES "")
@@ -40,7 +41,6 @@ list(APPEND LIBCPPHELPERS_INCLUDES result)
 file(GLOB STRING_SRC "${PROJECT_SOURCE_DIR}/string/*.cpp")
 list(APPEND LIBCPPHELPERS_SOURCES  ${STRING_SRC})
 list(APPEND LIBCPPHELPERS_INCLUDES string)
-
 
 file(GLOB LOGGING_SRC "${PROJECT_SOURCE_DIR}/logging/*.cpp")
 list(APPEND LIBCPPHELPERS_SOURCES  ${LOGGING_SRC})
@@ -63,6 +63,11 @@ endif()
 add_library(${PROJECT_NAME} STATIC ${LIBCPPHELPERS_SOURCES})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
+
+if (CPPHELPERS_USE_SOURCE)
+  message(STATUS "Building with LOGGING_USE_SOURCE")
+  target_compile_definitions(${PROJECT_NAME} PUBLIC LOGGING_USE_SOURCE=1)
+endif()
 
 target_include_directories(${PROJECT_NAME}
   PUBLIC

@@ -10,7 +10,13 @@ namespace logging
 
 bool gSilentLog = false;
 LogLevel gMinLogLevel = LogLevel::Debugging;
+
+#ifdef LOGGING_USE_SOURCE
+std::string gSourceName = "";
+std::function<void(std::chrono::system_clock::time_point ts, logging::LogLevel level, const std::string& source, const std::string& filename, const uint32_t& line, const std::string& message)> gLogToStream = nullptr;
+#else
 std::function<void(std::chrono::system_clock::time_point ts, logging::LogLevel level, const std::string& filename, const uint32_t& line, const std::string& message)> gLogToStream = nullptr;
+#endif
 
 std::string LevelToString(LogLevel logLevel)
 {
@@ -80,11 +86,10 @@ void Print(std::chrono::system_clock::time_point now, LogLevel level, const std:
   }
 }
 
-void Log(LogLevel level, const std::string& filename, const uint32_t& line,
-         const std::string& message)
+void Log(LogLevel level, const std::string& filename, const uint32_t& line, const std::string& message)
 {
   static std::mutex mPrintfMutex;
-  if (level > gMinLogLevel || gSilentLog)
+  if (level > gMinLogLevel)
     return;
 
   auto now = std::chrono::system_clock::now();
@@ -94,11 +99,19 @@ void Log(LogLevel level, const std::string& filename, const uint32_t& line,
   const uint32_t size = filename.find_last_of('.') - idx;
   const std::string shortFilename = filename.substr(idx, size);
 
+#ifdef LOGGING_USE_SOURCE
+  if (gLogToStream)
+    gLogToStream(now, level, gSourceName, shortFilename, line, message);
+#else
   if (gLogToStream)
     gLogToStream(now, level, shortFilename, line, message);
+#endif
 
-  std::lock_guard<std::mutex> lock(mPrintfMutex);
-  Print(now, level, shortFilename, line, message);
+  if (!gSilentLog)
+  {
+    std::lock_guard<std::mutex> lock(mPrintfMutex);
+    Print(now, level, shortFilename, line, message);
+  }
 }
 
 }  // namespace logging
