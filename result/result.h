@@ -1,6 +1,7 @@
 #pragma once
 
 #include <exception>
+#include <format>
 #include <functional>
 #include <optional>
 #include <stdexcept>
@@ -97,9 +98,10 @@ public:
       return f(Value());
   }
 
-  static Result<T> Failed(const std::string& msg)
+  template <typename... Args>
+  static Result<T> Failed(std::string_view fmt, Args&&... args)
   {
-    return Result<T>(std::runtime_error(msg));
+    return Result<T>(std::runtime_error(std::vformat(fmt, std::make_format_args(args...))));
   }
 
   template <class U>
@@ -194,16 +196,17 @@ public:
     if (IsSuccess() && r.IsSuccess())
       return VoidResult();
     else if (!IsSuccess() && !r.IsSuccess())
-      return VoidResult::Failed(ErrorMessage() + " and " + r.ErrorMessage());
+      return VoidResult::Failed("{} and {}", ErrorMessage(), r.ErrorMessage());
     else if (!IsSuccess())
       return *this;
     else
       return r;
   }
 
-  static VoidResult Failed(const std::string& msg)
+  template <typename... Args>
+  static VoidResult Failed(std::string_view fmt, Args&&... args)
   {
-    return VoidResult(std::runtime_error(msg));
+    return VoidResult(std::runtime_error(std::vformat(fmt, std::make_format_args(args...))));
   }
 
   template <class U>

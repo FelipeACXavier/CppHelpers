@@ -3,9 +3,10 @@
 #include <libgen.h>
 #include <sys/stat.h>
 #include <unistd.h>  //using access, X_OK, F_OK
+
 #include <climits>
-#include <cstring>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 
 #include "sync_process.h"
@@ -93,7 +94,7 @@ VoidResult CreateDirectory(const std::string& path)
   if (r == 0 || errno == EEXIST)
     return VoidResult();
   else
-    return VoidResult::Failed("Creating directory failed: " +std::string(strerror(errno)));
+    return VoidResult::Failed("Creating directory failed: {}", strerror(errno));
 }
 
 std::vector<std::string> GetFilesInDirectory(const std::string& path)
@@ -112,11 +113,10 @@ Result<std::string> GetFileContents(const char* fpath)
     if (finstream.good())
       contents = std::string((std::istreambuf_iterator<char>(finstream)), std::istreambuf_iterator<char>());
     else
-      return Result<std::string>::Failed("File '" +std::string(fpath) + "' does not exist");
-  }
-  catch (const std::exception& e)
+      return Result<std::string>::Failed("File '{}' does not exist", fpath);
+  } catch (const std::exception& e)
   {
-    return Result<std::string>::Failed("Can't read the file '" +std::string(fpath) + ": " + e.what());
+    return Result<std::string>::Failed("Can't read the file '{}': {}", fpath, e.what());
   }
   return Result<std::string>(contents);
 }
@@ -134,11 +134,10 @@ VoidResult SetFileContents(const std::string& fpath, const std::string& value)
     if (stream.good())
       stream << value;
     else
-      return VoidResult::Failed("File '" +std::string(fpath) + "' does not exist");
-  }
-  catch (const std::exception& e)
+      return VoidResult::Failed("File '{}' does not exist", fpath);
+  } catch (const std::exception& e)
   {
-    return VoidResult::Failed("Can't write the file " +std::string(fpath) + ": " + e.what());
+    return VoidResult::Failed("Can't write the file '{}': {}", fpath, e.what());
   }
 
   return VoidResult();
