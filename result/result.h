@@ -26,8 +26,7 @@ public:
     try
     {
       mData = f();
-    }
-    catch (const std::exception& e)
+    } catch (const std::exception& e)
     {
       mData = std::nullopt;
       mExceptionMsg = e.what();
@@ -145,8 +144,7 @@ public:
     {
       f();
       mSuccess = true;
-    }
-    catch (const std::exception& e)
+    } catch (const std::exception& e)
     {
       mExceptionMsg = e.what();
       mSuccess = false;
@@ -338,7 +336,7 @@ protected:
     auto ret = m;                                    \
     if (!ret.IsSuccess())                            \
     {                                                \
-      LOG_ERROR("%s", ret.ErrorMessage());           \
+      LOG_ERROR(ret.ErrorMessage());                 \
       return VoidResult::Failed(ret.ErrorMessage()); \
     }                                                \
   } while (0)

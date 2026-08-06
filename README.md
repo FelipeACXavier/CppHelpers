@@ -81,7 +81,7 @@ Naturally,it contains file system helpers. For now, only linux is supported. For
 ...
 // Check if a directory or file exists
 std::string dir = "../file_system";
-LOG_INFO("Does directory exist: %u", DoesFileExist(dir));
+LOG_INFO("Does directory exist: {}", DoesFileExist(dir));
 
 // Get all files in the directory 
 auto files = GetFilesInDirectory(dir);
@@ -89,7 +89,7 @@ for (const auto& file : files)
 {
   // Check for header files for example
   if (IsOfType(file, "h"))
-    LOG_INFO("Header file %s in folder: %s: Executable? %u", GetFilename(file).c_str(), RemoveFilename(file).c_str(), IsFileExecutable(file));
+    LOG_INFO("Header file {} in folder: {}: Executable? {}", GetFilename(file), RemoveFilename(file), IsFileExecutable(file));
 }
 ```
 
@@ -126,11 +126,11 @@ Thread safe std::vector wrapper
 ...
 SafeVector<int> vec({1, 2, 3, 4, 5});
 
-LOG_INFO("Element at index == size? %u", (bool)vec.At(vec.Size())); // false
+LOG_INFO("Element at index == size? {}", (bool)vec.At(vec.Size())); // false
 
 vec.ModifyElements([](int& value) {
   value += 5;
-  LOG_DEBUG("New element: %d", value);
+  LOG_DEBUG("New element: {}", value);
   return true;
 });
 ```
@@ -142,16 +142,16 @@ Thread safe "one-shot" variable wrapper
 #include "test_and_set.h"
 ...
 TestAndSet<int> num(1);
-LOG_INFO("Current value: %d", num.Value());
+LOG_INFO("Current value: {}", num.Value());
 
 num.SetOnDifferent(1, 2);
-LOG_INFO("Value after attempt: %d", num.Value());
+LOG_INFO("Value after attempt: {}", num.Value());
 
 bool changed = num.SetAndFailOnDifferent(1, 2);
-LOG_INFO("Value after second attempt: %d, new: %u", num.Value(), changed);
+LOG_INFO("Value after second attempt: {}, new: {}", num.Value(), changed);
 
 changed = num.SetAndFailOnDifferent({1, 2, 3}, 3);
-LOG_INFO("Value after third attempt: %d, new: %u", num.Value(), changed);
+LOG_INFO("Value after third attempt: {}, new: {}", num.Value(), changed);
 ```
 
 Output:
@@ -187,7 +187,7 @@ for (int i = 0; i <= 10; i += 5)
   if (!ret.IsSuccess())
     LOG_WARNING(ret.ErrorMessage());
   else
-    LOG_INFO("%d / %d = %d", i + 5, i, ret.Value());
+    LOG_INFO("{} / {} = {}", i + 5, i, ret.Value());
 }
 ```
 Output:

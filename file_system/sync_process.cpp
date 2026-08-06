@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+
 #include <array>
 
 #include "logging.h"
@@ -14,7 +15,7 @@ int SyncProcess::Execute(const std::string& cmd, std::string& result)
   FILE* p = popen(cmd.c_str(), "r");
   if (!p)
   {
-    LOG_ERROR("Failed to execute: %s", cmd.c_str());
+    LOG_ERROR("Failed to execute: {}", cmd);
     return -errno;
   }
 
@@ -27,8 +28,7 @@ int SyncProcess::Execute(const std::string& cmd, std::string& result)
       try
       {
         result += buffer.data();
-      }
-      catch (std::exception& e)
+      } catch (std::exception& e)
       {
         LOG_ERROR("Exception when updating buffer for cmd");
       }
@@ -39,11 +39,11 @@ int SyncProcess::Execute(const std::string& cmd, std::string& result)
   if (ret < 0)
   {
     ret = -errno;
-    LOG_WARNING("Process '%s' exited with code %d ", cmd.c_str(), -ret);
+    LOG_WARNING("Process '{}' exited with code {}", cmd, -ret);
   }
   else if (ret > 0)
   {
-    LOG_DEBUG("Process '%s' exited unsuccessfully with code %d", cmd.c_str(), ret);
+    LOG_DEBUG("Process '{}' exited unsuccessfully with code {}", cmd, ret);
   }
 
   return ret;

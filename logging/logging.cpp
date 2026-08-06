@@ -65,15 +65,16 @@ std::string TimeToString(std::chrono::system_clock::time_point now)
   std::tm tm = ToLocalTm(t);
 
   return Format(
-      "%02d/%02d/%04d %02d:%02d:%02d.%09lld",
-      tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900,
-      tm.tm_hour, tm.tm_min, tm.tm_sec, static_cast<long long>(micros));
+      "{:02}/{:02}/{:04} {:02}:{:02}:{:02}.{:09}",
+      tm.tm_mday, tm.tm_mon + 1,
+      tm.tm_year + 1900, tm.tm_hour, tm.tm_min,
+      tm.tm_sec, static_cast<long long>(micros));
 }
 
 void Print(std::chrono::system_clock::time_point now, LogLevel level, const std::string& filename,
            const uint32_t& line, const std::string& message)
 {
-  const std::string msg = Format("%s [%s] %s:%u: %s\n", TimeToString(now).c_str(), LevelToString(level).c_str(), filename.c_str(), line, message.c_str());
+  const std::string msg = Format("{} [{}] {}:{}: {}\n", TimeToString(now), LevelToString(level), filename, line, message);
   if (level == LogLevel::Error)
   {
     fprintf(stderr, "%s", msg.data());

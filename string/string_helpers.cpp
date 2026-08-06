@@ -30,56 +30,6 @@ std::string ToLowerCase(const std::string& str, uint32_t startPos, uint32_t endP
   return cpy;
 }
 
-std::string Format(const std::string& str, ...)
-{
-  return Format(str.c_str());
-}
-
-std::string Format(const char* format, ...)
-{
-  va_list valist;
-
-  int len = 0;
-  va_start(valist, format);
-#ifdef _MSC_VER
-  // _vscprintf computes the length WITHOUT writing to a buffer
-  len = _vscprintf(format, valist);
-  va_end(valist);
-
-  if (len < 0)
-    return {};
-
-  // +1 for the null terminator
-  std::vector<char> buffer(static_cast<size_t>(len) + 1);
-
-  va_start(valist, format);
-  // vsnprintf_s is the "safe" MSVC version
-  int written = vsnprintf_s(buffer.data(), buffer.size(), _TRUNCATE, format, valist);
-  va_end(valist);
-
-  if (written < 0)
-    return {};
-
-  // Construct string without the trailing '\0'
-  return std::string(buffer.data(), static_cast<size_t>(written));
-#else
-  len = vsnprintf(0, 0, format, valist);
-  va_end(valist);
-
-  if (len < 0)
-    return {};
-
-  // Allocate buffer including space for 0 termination
-  char buffer[len + 1];
-
-  va_start(valist, format);
-  std::vsnprintf(buffer, (uint32_t)(len + 1), format, valist);
-  va_end(valist);
-
-  return std::string(buffer);
-#endif
-}
-
 std::string LTrim(std::string s, const char* t)
 {
   s.erase(0, s.find_first_not_of(t));
