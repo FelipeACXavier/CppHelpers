@@ -29,6 +29,7 @@ include(GNUInstallDirs)
 option(CPPHELPERS_SAFE_TYPES   "Build safe_types helpers"   ON)
 option(CPPHELPERS_FILE_SYSTEM  "Build file_system helpers"  ON)
 option(CPPHELPERS_USE_SOURCE   "Build logging with support for sources"  OFF)
+option(CPPHELPERS_USE_QT       "Build with QT support"  OFF)
 
 set(LIBCPPHELPERS_SOURCES "")
 set(LIBCPPHELPERS_INCLUDES "")
@@ -67,6 +68,16 @@ set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
 if (CPPHELPERS_USE_SOURCE)
   message(STATUS "Building with LOGGING_USE_SOURCE")
   target_compile_definitions(${PROJECT_NAME} PUBLIC LOGGING_USE_SOURCE=1)
+endif()
+
+if (CPPHELPERS_USE_QT)
+  message(STATUS "Building with LOGGING_USE_QT")
+
+  find_package(Qt6 REQUIRED COMPONENTS Core)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC LOGGING_USE_QT=1)
+  target_link_libraries(${PROJECT_NAME}
+    PUBLIC Qt6::Core
+  )
 endif()
 
 target_include_directories(${PROJECT_NAME}

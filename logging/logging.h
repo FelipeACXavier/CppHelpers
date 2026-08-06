@@ -10,6 +10,21 @@
 
 #include "string_helpers.h"
 
+#ifdef LOGGING_USE_QT
+#include <QString>
+// Let's add that nice support for QStrings
+template <>
+struct std::formatter<QString, char> : std::formatter<std::string_view, char>
+{
+  auto format(const QString& value, std::format_context& context) const
+  {
+    const QByteArray utf8 = value.toUtf8();
+    const std::string_view view{utf8.constData(), static_cast<std::size_t>(utf8.size())};
+    return std::formatter<std::string_view, char>::format(view, context);
+  }
+};
+#endif
+
 namespace logging
 {
 
