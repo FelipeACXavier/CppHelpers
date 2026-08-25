@@ -99,9 +99,15 @@ public:
   }
 
   template <typename... Args>
+    requires(sizeof...(Args) > 0)
   static Result<T> Failed(std::string_view fmt, Args&&... args)
   {
     return Result<T>(std::runtime_error(std::vformat(fmt, std::make_format_args(args...))));
+  }
+
+  static Result<T> Failed(const std::string& message)
+  {
+    return Result<T>(std::runtime_error(message));
   }
 
   template <class U>
@@ -204,9 +210,15 @@ public:
   }
 
   template <typename... Args>
+    requires(sizeof...(Args) > 0)
   static VoidResult Failed(std::string_view fmt, Args&&... args)
   {
     return VoidResult(std::runtime_error(std::vformat(fmt, std::make_format_args(args...))));
+  }
+
+  static VoidResult Failed(const std::string& message)
+  {
+    return VoidResult(std::runtime_error(message));
   }
 
   template <class U>
@@ -249,6 +261,13 @@ public:
   static DataResult<T> Failed(T data, const std::string& msg)
   {
     return DataResult<T>(data, std::runtime_error(msg));
+  }
+
+  template <typename... Args>
+    requires(sizeof...(Args) > 0)
+  static DataResult<T> Failed(T data, std::string_view fmt, Args&&... args)
+  {
+    return DataResult<T>(data, std::runtime_error(std::vformat(fmt, std::make_format_args(args...))));
   }
 
   T Value() const

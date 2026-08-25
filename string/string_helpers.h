@@ -26,9 +26,15 @@ std::map<std::string, std::string> Split(const std::string& str, char c1, char c
 
 std::string VectorToString(const std::vector<uint32_t>& values);
 
+inline std::string Format(std::string_view fmt)
+{
+  return std::string(fmt);
+}
+
 // Since templates are instantiated where they are used, the compiler needs
 // the full definition in each translation unit.
 template <typename... Args>
+  requires(sizeof...(Args) > 0)
 std::string Format(std::string_view fmt, Args&&... args)
 {
   return std::vformat(fmt, std::make_format_args(args...));
